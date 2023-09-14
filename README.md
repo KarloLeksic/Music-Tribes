@@ -1,4 +1,5 @@
 # Music tribes
+[The source repository is on GitLab](https://gitlab.com/antunovicmatej/music-tribes)
 
 ## Opis aplikacije
 
