@@ -1,0 +1,99 @@
+{% extends 'app/base.html' %}
+
+
+{% block jumbotron %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron fluid-jumbotron" style="background-color: rgb(0, 58, 97); 
+            background-image: url('https://emerj.com/wp-content/uploads/2018/04/musical-artificial-intelligence-6-applications-of-ai-for-audio-2.png'); 
+            background-size: cover;
+            background-position: center;
+            background-blend-mode:overlay;">
+                <div class="container" style="color: white; text-align: center;">
+                    <h1 class="display-4" style="font-weight: bold;">Music Tribes</h1>
+                    <p class="lead" style="font-weight: bold;">Life is music!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block Tribes %}
+{% if user.is_authenticated %}
+      
+    <a href="{% url 'app:newTribe' %}" class="btn btn-primary my-2 d-block mx-auto" style="width: 300px; font-size: 20px">Create Tribe</a>
+
+    <h3>My created tribes</h3>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+        {% for tribe in myTribes %}
+            <div class="card" style="width: 18rem; margin: 10px;">
+                <img src="{{ tribe.logoUrl }}" class="card-img-top">
+                <div class="card-body">
+                <div style="display: flex; flex-direction: row; font-weight: bold;">
+                    <a href="{% url 'app:tribePage' tribe.id %}" class="card-title">{{ tribe.name }}</a>
+                </div>
+                    <p class="card-text">{{ tribe.genre }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3>My joined tribes</h3>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+        {% for tribe in joinedTribes %}
+            <div class="card" style="width: 18rem; margin: 10px">
+                <img src="{{ tribe.logoUrl }}" class="card-img-top" >
+                <div class="card-body">
+                <div style="display: flex; flex-direction: row; font-weight: bold;">
+                    <a href="{% url 'app:tribePage' tribe.id %}" class="card-title">{{ tribe.name }}</a>
+                </div>
+                    <p class="card-text">{{ tribe.genre }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3>Other tribes</h3>
+    <div style="display: flex; flex-direction: row; flex-wrap: wrap">
+        {% for tribe in otherTribes %}
+            <div class="card" style="width: 18rem; margin: 10px">
+                <img src="{{ tribe.logoUrl }}" class="card-img-top" >
+                <div class="card-body">
+                <div style="display: flex; flex-direction: row; font-weight: bold;">
+                    <a href="{% url 'app:tribePage' tribe.id %}" class="card-title">{{ tribe.name }}</a>
+                </div>
+                    <p class="card-text">{{ tribe.genre }}</p>
+                    
+                    <form action="{% url 'app:joinTribe' tribe.id %}" method="post" accept-charset="utf-8">
+                        {% csrf_token %}
+                
+                        {% include 'includes/bs4_form.html' with form=form %}   
+
+                        <input type="submit" value="Join Tribe" class="btn btn-primary"> 
+                                                
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+        <h1>Tribes:</h1>
+        <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+            {% for tribe in all_tribes %}
+                <div class="card" style="width: 18rem; margin: 10px">
+                    <img src="{{ tribe.logoUrl }}" class="card-img-top" >
+                    <div class="card-body">
+                    <div style="display: flex; flex-direction: row">
+                        <a href="{% url 'app:tribePage' tribe.id %}" class="card-title">{{ tribe.name }}</a>
+                    </div>
+                        <p class="card-text">{{ tribe.genre }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}

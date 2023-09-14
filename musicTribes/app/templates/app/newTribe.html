@@ -1,0 +1,26 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        {% if action == 'create' %}
+        <h2 class="text-center">Create new Tribe</h2>
+        {% else %}
+        <h2 class="text-center">Edit Tribe</h2>
+        {% endif %}
+    </div>
+</div>
+    
+    <form method="post" accept-charset="utf-8">
+        {% csrf_token %}
+
+        {% include 'includes/bs4_form.html' with form=form %}   
+        
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <input type="submit" value="Create Tribe" class="btn btn-primary">      
+            </div>
+        </div>
+        
+    </form>
+{% endblock %}

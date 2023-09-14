@@ -1,0 +1,165 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <div class="content-section container">
+      <div class="media row center">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+          <img class="rounded-circle account-img my-2 d-block mx-auto" width="200px" height="200px" src="{{ tribe.logoUrl }}">
+          <div class="media-body text-center">
+            <h1 class="account-heading">{{ tribe.name }}</h1>
+            <p class="text-secondary" style="font-size: 25px;">{{ tribe.genre }}</p>
+            {% if isJoined %}
+              <p class="text-secondary">Joined <i class="fa fa-solid fa-check" style="color: green;"></i></p>
+            {% elif request.user != tribe.chieftain and request.user.is_authenticated %}
+              <form action="{% url 'app:joinTribe' tribe.id %}" method="post">
+                {% csrf_token %}
+      
+                <input type="submit" value="Join Tribe" class="btn btn-success my-2 d-block mx-auto" style="width: 300px; font-size: 20px">
+              </form>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-md-4"></div>
+      </div>
+    </div>
+    <div>
+      <hr>
+      {% if request.user == tribe.chieftain %}
+
+        <a href="{% url 'app:newPlaylist' tribe.id %}" class="btn btn-primary my-2 d-block mx-auto" style="width: 300px; font-size: 20px">Create Playlist</a>      
+      
+      {% else %}
+
+        {% if isJoined %}
+                
+          <form action="{% url 'app:leaveTribe' tribe.id %}" method="post">
+            {% csrf_token %}
+
+            <input type="submit" value="Leave Tribe" class="btn btn-danger my-2 d-block mx-auto" style="width: 300px; font-size: 20px">
+          </form>
+
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <h2 class="my-2">Playlists:</h2>
+
+<div class="row">
+  <div class="col-md-8 left">
+    {% for playlist in playlists %}
+      <div style="background: rgb(205,172,134);
+      background: linear-gradient(270deg, rgba(205,172,134,1) 0%, rgba(252,239,179,1) 100%); border-radius:20px;">
+        <a href="{% url 'app:playlist' playlist.id %}" style="margin:10px; font-size: 30px; font-weight: bold; color: rgb(75, 19, 19);">{{ playlist.name }}</a>
+        <p style="margin:10px;">{{ playlist.description }}</p>
+        
+        {% if request.user == tribe.chieftain %}
+
+          <div class="row col-md-8">      
+            <a href="{% url 'app:editPlaylist' playlist.id %}" style="margin:10px;" class="my-2 btn btn-success">Edit</a> 
+
+            <div class="col-md-8">
+              <form action="{% url 'app:deletePlaylist' playlist.id %}" style="margin: 8px;" method="POST" >
+                {% csrf_token %}
+                  
+                <input type="submit" value="Delete" class="btn btn-danger">      
+              </form>
+            </div>
+          </div>
+
+        {% endif %}
+
+        <hr>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="col-md-4 newsletter" style="border-radius:20px; background-color: rgb(221, 193, 162);
+  background-image: url('https://img.freepik.com/free-vector/abstract-triangular-low-poly-blue_10239-1.jpg'); 
+  background-size: cover;
+  background-blend-mode:soft-light;">
+
+    <h1 class="text-center">Members</h1>
+    <hr>
+
+    <div class="container"> 
+      {% if request.user.is_authenticated %}
+        <p class="text-center">{{ chieftain.username }} (chieftain)</p>
+      {% endif %}
+
+      {% for member in members %}
+        <div class="row">
+          <p class="d-block mx-auto">{{ member.user.username}} 
+            {% if request.user == tribe.chieftain %}
+            <form action="{% url 'app:removeMember' tribe.id member.id %}" method="POST">
+              {% csrf_token %}
+              <input type="submit" value="Remove" class="btn btn-danger">      
+            </form>
+            {% endif %}
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div style="height: 20px;"></div>
+
+<div class="row">
+  <div class="col-md-8"></div>
+  <div class="col-md-4" style="border-radius:20px; background-color:antiquewhite; 
+  background-image: 
+  url('https://media.istockphoto.com/vectors/seamless-pattern-with-social-media-elements-vector-id1216688115?k=20&m=1216688115&s=612x612&w=0&h=3sseE8vq-XIPRsv55mVU3kq4Rv1T5hhBWxQ0UogyG0w=');
+  background-size: cover; background-blend-mode: screen;">
+    <h1 class="text-center">Chatbox</h1>
+    <hr>
+    <div>
+    {% for message in messages %}
+      <div class="row mx-auto">
+        <img src="{{ message.author.profilePicUrl }}" alt="slika" class="rounded" width="50px" height="50px">
+        {% if message.author.user == tribe.chieftain %}
+          <h4 style="font-weight: bold; color: darkred;" class="mx-1">{{ message.author.user.username }} <i class="fa fa-solid fa-check"></i></h4>
+        {% else %}
+          <h4 class="mx-1">{{ message.author.user.username }}</h4>
+        {% endif %}
+        <p class="mx-1 my-2" style="font-style: italic; font-size: 13px;">{{ message.created_at }}</p>        
+      </div>
+      <div class="row">
+        {% if message.author.user == tribe.chieftain %}
+          <p class="mx-auto" style="font-weight: bold; color: darkred;">{{ message.message }}</p>
+        {% else %}
+          <p class="mx-auto">{{ message.message }}</p>
+        {% endif %}
+        {% if request.user == tribe.chieftain %}
+          <form action="{% url 'app:deleteMessage' message.id %}" method="post">
+
+            {% csrf_token %}    
+      
+            <button type="submit" class="my-1 mx-2 btn btn-danger">
+              <i class="fa fa-trash " aria-hidden="true"></i>
+            </button>
+      
+          </form>          
+        {% endif %}
+      </div>
+      <hr>
+    {% endfor %}      
+    </div>
+
+    {% if request.user.is_authenticated %}
+      <form action="{% url 'app:sendMessage' tribe.id %}" method="post">
+
+        {% csrf_token %}
+
+        {% include 'includes/bs4_form.html' with form=form %}
+
+        <input type="submit" value="Send" class="btn btn-primary d-block mx-auto">
+
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+</div>
+{% endblock content %}
+

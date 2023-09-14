@@ -1,0 +1,181 @@
+{% extends 'app/base.html' %}
+
+
+{% block content %}
+    <div class="content-section container">
+      <div class="media row center">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+          <img class="rounded-circle account-img my-2 d-block mx-auto" width="200px" height="200px" src="{{ tribe.logoUrl }}">
+          <div class="media-body text-center">
+            <h1 class="account-heading">{{ tribe.name }}</h1>
+            <p class="text-secondary" style="font-size: 25px;">{{ tribe.genre }}</p>
+          </div>
+        </div>
+        <div class="col-md-4"></div>
+      </div>
+    </div>
+    <div>
+    <hr>
+
+    <div>
+        <div class="text-center">
+            <h2>{{ playlist.name }}</h2>
+            <p>Made by: {{ playlist.tribe.chieftain.username }}</p>
+            <p style="font-style: italic;">Created at: {{ playlist.created_at }}</p>
+            <p>{{ playlist.description }}</p>
+        </div>
+        
+        <a href="{% url 'app:newSong' playlist.id %}" class="btn btn-primary my-2">Add new song</a>
+        <hr>
+
+        {% if empty == True %}
+
+            <h3> Playlist is empty. </h3>
+
+        {% else %}
+
+            {% for song,like,num_comments,comments in songs_with_likes_and_comments %}
+                <div>
+                    <a href="{{ song.url }}" target="_blank" style="font-size: 20px; color: black; font-weight: bold; text-decoration: none;"><i class="fa fa-solid fa-play"> </i>
+                        &nbsp;{{ song.artist }} - {{ song.name }}  ({{ song.duration }})</a>
+
+                    {% if request.user.is_superuser or request.user == tribe.chieftain or request.user == song.user %}
+                    
+                        <form action="{% url 'app:deleteSong' song.id %}" method="post" class="form-inline d-block float-right">
+                                        
+                            {% csrf_token %}    
+                    
+                            <button type="submit" class="my-1 mx-2 btn btn-danger">
+                            <i class="fa fa-trash " aria-hidden="true"></i>
+                            </button>
+                    
+                        </form>
+
+                    {% endif %}
+
+                    <div class="my-3 row container">
+                            
+                            {% if ifMember %}
+
+                                {% if like.like %}
+                                    <form action="{% url 'app:likeSong' song.id %}" method="post" role="form" class="form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Unlike {{ song.num_likes }}</button>
+                                    </form>
+                                {% else %}
+
+                                    <form action="{% url 'app:likeSong' song.id %}" method="post" role="form" class="form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">Like {{ song.num_likes }}</button>
+                                    </form>
+                                {% endif %}
+                                    
+                            {% else %}
+
+                                    <span>{{ song.num_likes }} likes</span>
+
+                            {% endif %}
+
+                                
+                            {% if num_comments == 0 %}
+                            
+                                <div class="click my-2 mx-2" style="cursor: pointer; user-select: none;">
+                                    Comment (<i class="mess"></i>)
+                                    <div class="hide">
+                                        {% if ifMember or tribe.chieftain == request.user %}
+                                            <p>Još nitko nije komentirao. Budi prvi!</p>
+                                            <form action="{% url 'app:postComment' song.id %}" method="post">
+                                            
+                                                {% csrf_token %}    
+                                                {% include 'includes/bs4_form.html' with form=form %} 
+                                                <button type="submit" class="my-1 mx-2 btn btn-primary">
+                                                Submit comment
+                                                </button>
+                                        
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                            {% else %}
+
+                                <div class="click my-2 mx-2" style="cursor: pointer; user-select: none;">
+                                    Comments ({{ num_comments }}) (<i class="mess"></i>)
+                                    <div class="hide">
+                                          <hr>
+                                        {% for comment in comments %}
+                                        
+                                            <div class="row mx-auto">
+                                                <img src="{{ comment.user.profilePicUrl }}" alt="slika" class="rounded" width="50px" height="50px">
+                                                <h4 class="mx-1">{{ comment.user.user.username }}</h4>
+                                                <p class="mx-1" style="font-style: italic; font-size: 13px;">{{ comment.created_at }}</p>        
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <p class="mx-auto">{{ comment.comment }}</p>
+                                            
+                                                {% if request.user.is_superuser or request.user == tribe.chieftain %}
+
+                                                    <form action="{% url 'app:deleteComment' comment.id %}" method="post">
+                                            
+                                                        {% csrf_token %}    
+                                                
+                                                        <button type="submit" class="my-1 mx-2 btn btn-danger">
+                                                        <i class="fa fa-trash " aria-hidden="true"></i>
+                                                        </button>
+                                                
+                                                    </form>  
+
+                                                {% endif %}        
+                                            </div>
+                                            <hr>
+
+                                          {% endfor %}
+                                          {% if ifMember or tribe.chieftain == request.user %}
+                                            <form action="{% url 'app:postComment' song.id %}" method="post">
+                                            
+                                                {% csrf_token %}    
+                                                {% include 'includes/bs4_form.html' with form=form %} 
+                                                <button type="submit" class="my-1 mx-2 btn btn-primary">
+                                                Submit comment
+                                                </button>
+                                        
+                                                </form>     
+                                                {% endif %}               
+                                    </div>
+                                </div>
+                            
+                            {% endif %}
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+
+        {% endif %}
+
+        <script>
+            $(document).ready(function() {
+                $('.hide').hide();
+                $(".mess").html("Double click to see comments");
+            });
+
+            $(function() {
+                $('.click').dblclick(function() {
+                    $(this).find('.hide').toggle();                    
+                    if ($(this).find('.hide').is(":visible")) {
+                        $(this).find('.mess').html("Double click to hide comments");
+                    } else {
+                        $(this).find('.mess').html("Double click to see comments");
+                    }
+                });
+            });
+        </script>
+
+    </div>
+
+    
+
+
+
+{% endblock content %}

@@ -1,0 +1,80 @@
+{% load static %}
+<html>
+  <head>
+    <title>Music Tribes by Metju and Karlito</title>
+
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.7/css/all.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    {% block extrahead %}
+    {% endblock %}
+
+    <link rel="stylesheet" href="{% static 'app/css/app.css' %}">
+  </head>
+  <body>
+    <div class="page-header">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Music Tribes by Metju and Karlito</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="#">Hi {{ user.username }}!</a>
+              </li>
+              {% if user.is_superuser %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'admin:index' %}">Admin Dashboard</a>
+                </li>
+              {% endif %}
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'accounts:profile' user.id %}">EDIT USER</a>
+              </li> 
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:signup' %}">Signup</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+
+    </div>
+    <div class="content container">
+
+      {% block jumbotron %}
+      {% endblock %}
+      
+      {% block Tribes %}
+      {% endblock %}
+
+      <div class="row">
+        <div class="col-md-12">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
